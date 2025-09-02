@@ -115,11 +115,38 @@ public class VierGewinn {
     }
     
 
+    public String getSymbol(int value) {
+        return switch (value) {
+            case 1 -> "O"; // Player 1
+            case -1 -> "X"; // Player 2(KI)
+            default -> "-"; // Empty field
+        };
+    }
 
-  
+    // Generates a string representation of the board for display
+
+    @Override
+    public String toString() {
+        StringBuilder res = new StringBuilder(" \n   ");
+
+        // Column numbers
+        for (int col = 0; col < cols; col++) {
+            res.append(col).append("   ");
+        }
+        res.append("\n");
+
+        // Playfield with row and column display
+        for (int row = 0; row < rows; row++) {
+            res.append("  ");
+            for (int col = 0; col < cols; col++) {
+                int value = board[row * cols + col];
+                res.append(getSymbol(value)).append(" | ");
+            }
+            res.append("\n");
+        }
+        return res.toString();
+    }
+
     
-
-
-
 
 }
