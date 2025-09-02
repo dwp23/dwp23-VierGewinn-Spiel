@@ -14,7 +14,6 @@ public class VierGewinn {
 
     }
 
-    // a1
 
     // Checks if a move in the specified column is valid
 
@@ -65,6 +64,61 @@ public class VierGewinn {
         return this;
     }
     
+
+    
+    boolean checkWin(int turn) {
+
+        // Define directions for checking: horizontal, vertical,
+        // and diagonal (up-right, down-right)
+        int[] directions = { 1, cols, cols + 1, cols - 1 };
+
+        for (int startIdx = 0; startIdx < board.length; startIdx++) {
+
+            if (board[startIdx] != turn) {
+                continue;
+            }
+
+            for (int direction : directions) {
+
+                boolean win = true;
+
+                int[] winningTokens = new int[4];
+                winningTokens[0] = startIdx;
+                // Check the next 3 fields in the current direction
+                for (int step = 1; step < 4; step++) {
+                    int nextIdx = startIdx + step * direction;
+                    // Check if the next field is valid
+                    if (nextIdx < 0 || nextIdx >= board.length ||
+                            (direction == 1 && nextIdx / cols != startIdx / cols) ||
+                            (direction == cols - 1 && nextIdx % cols > startIdx % cols) ||
+                            (direction == cols + 1 && nextIdx % cols < startIdx % cols)) {
+                        win = false;
+                        break;
+                    }
+
+                    // Check if the player occupies this field
+                    if (board[nextIdx] != turn) {
+                        win = false;
+                        break;
+                    }
+
+                    winningTokens[step] = nextIdx;
+
+                }
+
+            }
+
+        }
+
+        return false; // No win detected
+
+    }
+    
+
+
+  
+    
+
 
 
 
