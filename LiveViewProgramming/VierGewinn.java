@@ -1,4 +1,5 @@
 import java.util.Arrays;
+import java.util.function.BiFunction;
 import java.util.stream.IntStream;
 
 public class VierGewinn {
@@ -113,6 +114,27 @@ public class VierGewinn {
         return false; // No win detected
 
     }
+
+
+
+    // Calculates the score based on the number of player and opponent stones
+    final BiFunction<Integer, Integer, Integer> calculateThreatScore = (playerCount, opponentCount) -> {
+        if (playerCount > 0 && opponentCount > 0)
+            return 0; // Mixed threat irrelevant
+        if (playerCount == 4)
+            return 1000; // Win
+        if (playerCount == 3)
+            return 10; // Potential win
+        if (playerCount == 2)
+            return 5;
+        if (opponentCount == 4)
+            return -1000; // Opponent wins
+        if (opponentCount == 3)
+            return -10;
+        if (opponentCount == 2)
+            return -5;
+        return 0; // No threat
+    };
     
 
     public String getSymbol(int value) {
