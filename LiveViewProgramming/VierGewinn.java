@@ -114,10 +114,91 @@ public class VierGewinn {
         return false; // No win detected
 
     }
+    
 
 
+    int evaluateBoard(int player) {
 
-    // Calculates the score based on the number of player and opponent stones
+        int score = 0, opponent = -player; // Opponnent is the other player
+
+        // Evaluate the center of the board (column 3 has more weight)
+        for (int row = 0; row < rows; row++) {
+            if (board[row * cols + 3] == player) {
+                score += 3; // Advantage for the center
+            }
+        }
+
+        // Check for threats and opportunities
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                int index = row * cols + col;
+
+                // check horizontally
+                if (col + 3 < cols) { // Ensure we don't go out of bounds
+                    int playerCount = 0, opponentCount = 0;
+
+                    for (int i = 0; i < 4; i++) {
+                        if (board[index + i] == player)
+                            playerCount++;
+                        if (board[index + i] == opponent)
+                            opponentCount++;
+                    }
+
+                    // Evaluate based on player stones
+                    score += calculateThreatScore.apply(playerCount, opponentCount);
+
+                }
+
+                // Check vertically
+                if (row + 3 < rows) {
+                    int playerCount = 0, opponentCount = 0;
+
+                    for (int i = 0; i < 4; i++) {
+                        if (board[index + i * cols] == player)
+                            playerCount++;
+                        if (board[index + i * cols] == opponent)
+                            opponentCount++;
+                    }
+
+                    score += calculateThreatScore.apply(playerCount, opponentCount);
+                }
+
+                // Check diagonally (down right)
+                if (row + 3 < rows && col + 3 < cols) {
+                    int playerCount = 0, opponentCount = 0;
+
+                    for (int i = 0; i < 4; i++) {
+                        if (board[index + i * (cols + 1)] == player)
+                            playerCount++;
+                        if (board[index + i * (cols + 1)] == opponent)
+                            opponentCount++;
+                    }
+
+                    score += calculateThreatScore.apply(playerCount, opponentCount);
+
+                }
+
+                // Check diagonally (down-left)
+                if (row + 3 < rows && col - 3 >= 0) {
+                    int playerCount = 0, opponentCount = 0;
+
+                    for (int i = 0; i < 4; i++) {
+                        if (board[index + i * (cols - 1)] == player)
+                            playerCount++;
+                        if (board[index + i * (cols - 1)] == opponent)
+                            opponentCount++;
+                    }
+
+                    score += calculateThreatScore.apply(playerCount, opponentCount);
+
+                }
+            }
+        }
+        // Return the calculated score for the current board state
+        return score;
+    }
+
+
     final BiFunction<Integer, Integer, Integer> calculateThreatScore = (playerCount, opponentCount) -> {
         if (playerCount > 0 && opponentCount > 0)
             return 0; // Mixed threat irrelevant
@@ -135,7 +216,7 @@ public class VierGewinn {
             return -5;
         return 0; // No threat
     };
-    
+
 
     public String getSymbol(int value) {
         return switch (value) {
