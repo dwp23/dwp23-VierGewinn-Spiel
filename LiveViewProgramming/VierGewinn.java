@@ -218,6 +218,15 @@ public class VierGewinn {
     };
 
 
+
+    int getAvailableRow(int col) {
+        return IntStream.rangeClosed(0, 5)
+                .map(row -> 5 - row) // Iterate from bottom to top
+                .filter(row -> board[row * 7 + col] == 0)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No available row in column " + col));
+    }
+
     public String getSymbol(int value) {
         return switch (value) {
             case 1 -> "O"; // Player 1
