@@ -219,6 +219,62 @@ public class VierGewinn {
 
 
 
+    int minimax(int[] gameState, int depth, int alpha, int beta, boolean isMaximizingPlayer) {
+        // Base case 1: Check if the current board state results in a win
+        if (checkWin(turn)) {
+            return isMaximizingPlayer ? -1000 : 1000; // Immediate win or loss
+        }
+        // Base case 2: Depth limit reached, evaluate the board state
+        if (depth == 0) {
+            return evaluateBoard(isMaximizingPlayer ? -1 : 1);// Standard evaluation
+        }
+
+        if (isMaximizingPlayer) {
+
+            int maxEval = Integer.MIN_VALUE;
+
+            // Loop through all columns to find valid moves
+            for (int col = 0; col < cols; col++) {
+                if (isValidMove(col)) {
+                    int row = getAvailableRow(col);
+                    gameState[row * cols + col] = -1; // AI plays
+                    // Recursively calculate the minimax score for the opponent's turn
+                    int eval = minimax(gameState, depth - 1, alpha, beta, false);
+                    gameState[row * cols + col] = 0; // Undo move
+
+                    maxEval = Math.max(maxEval, eval); // Update the maximum score
+                    alpha = Math.max(alpha, eval);
+
+                    if (beta <= alpha)
+                        break; // Prune the remaining branches
+                }
+            }
+            return maxEval;
+        } else {
+            int minEval = Integer.MAX_VALUE;
+
+            for (int col = 0; col < cols; col++) {
+                if (isValidMove(col)) {
+                    int row = getAvailableRow(col);
+                    gameState[row * cols + col] = 1; // Opponent plays
+
+                    int eval = minimax(gameState, depth - 1, alpha, beta, true);
+                    gameState[row * cols + col] = 0; // Undo move
+
+                    minEval = Math.min(minEval, eval); // Update the minimum score
+
+                    beta = Math.min(beta, eval);
+
+                    if (beta <= alpha)
+                        break; // Prune the remaining branches
+                }
+            }
+            return minEval;
+        }
+    }
+
+    
+
     int getAvailableRow(int col) {
         return IntStream.rangeClosed(0, 5)
                 .map(row -> 5 - row) // Iterate from bottom to top
