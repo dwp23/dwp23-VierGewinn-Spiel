@@ -273,7 +273,64 @@ public class VierGewinn {
         }
     }
 
-    
+
+
+
+    int getBestMove() {
+        int bestMove = -1;
+
+        // Step 1: Check if the AI can win immediately
+        for (int col = 0; col < 7; col++) {
+            if (isValidMove(col)) {
+                Move move = new Move(getAvailableRow(col), col);
+                board[move.row() * cols + move.col()] = -1; // Simulate AI plays
+
+                if (checkWin(turn)) { // Check if this move wins
+                    board[move.row() * cols + move.col()] = 0; // Undo move
+                    return move.col(); // Return immediately with this move
+                }
+
+                board[move.row() * cols + move.col()] = 0; // Undo move
+            }
+        }
+
+        // Step 2: Check if the opponent can win and block
+        for (int col = 0; col < 7; col++) {
+            if (isValidMove(col)) {
+                Move move = new Move(getAvailableRow(col), col);
+                board[move.row() * cols + move.col()] = 1; // Simulate opponent move
+
+                if (checkWin(turn)) { // Check if opponent would win
+                    board[move.row() * cols + move.col()] = 0; // Undo move
+                    return move.col(); // Block immediately
+                }
+
+                board[move.row() * cols + move.col()] = 0; // Undo move
+            }
+        }
+
+        // Step 3: If no immediate winning or blocking move, use Minimax
+        int bestScore = Integer.MIN_VALUE;
+
+        for (int col = 0; col < 7; col++) {
+            if (isValidMove(col)) {
+                Move move = new Move(getAvailableRow(col), col);
+                board[move.row() * cols + move.col()] = -1; // Simulate AI move
+                // Evaluate the move using Minimax with depth 5
+                int score = minimax(board, 5, Integer.MIN_VALUE, Integer.MAX_VALUE, false);
+                board[move.row() * cols + move.col()] = 0;// Undo move
+                // Update the best score and column
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMove = col;
+                }
+            }
+        }
+
+        return bestMove; // Return the column of the best move
+    }
+
+
 
     int getAvailableRow(int col) {
         return IntStream.rangeClosed(0, 5)
@@ -315,6 +372,7 @@ public class VierGewinn {
         return res.toString();
     }
 
-    
+    static record Move(int row, int col) {
+    }
 
 }
