@@ -7,13 +7,19 @@ public class VierGewinn {
     final int cols = 7;
     int board[];
     int turn;
+    int[][] tokenCoordinates;
+    ConnectFour cF;
 
     VierGewinn() {
 
         this.board = new int[rows * cols];
         this.turn = 1;
+         cF = new ConnectFour();// Creates a ConnectFour instance
+    
+        cF.show("Game start! Red: Human, Yellow: AI. Human starts!");
 
     }
+
 
 
     // Checks if a move in the specified column is valid
@@ -21,6 +27,7 @@ public class VierGewinn {
     boolean isValidMove(int col) {
 
         if (col < 0 || col >= cols) {
+           
             throw new IllegalArgumentException("Column " + col + " does not exist!");
         }
 
@@ -28,16 +35,24 @@ public class VierGewinn {
 
     }
 
+
+
+
     // Checks if the board is completely full
     boolean isBoardFull() {
         return Arrays.stream(board).noneMatch(cell -> cell == 0);
     }
+
+   
+
+
 
 
     VierGewinn move(int col) {
 
         // Check if the selected column is valid
         if (!isValidMove(col)) {
+            cF.show("Invalid move in column " + col + ", it is full.");
             throw new IllegalArgumentException("Invalid move in column" + col);
         }
 
@@ -54,6 +69,46 @@ public class VierGewinn {
             }
 
         }
+
+        // Place the token for the current player in the chosen column and row
+        int index = ((x) * cols + col);
+        board[index] = turn;
+
+        cF.move(turn, col, x);
+
+        // Check for a win after the move
+        if (checkWin(turn)) { 
+            //Highlights the winning tokens with a green border
+            cF.highlightWinningTokens(tokenCoordinates);
+            cF.show((turn == 1 ? "Human player" : "AI") + " has won!");
+
+             // Add a delay to display the winning result before resetting the game
+    try {
+        Thread.sleep(2000); // Wait 2 seconds before resetting
+    } catch (InterruptedException e) {
+        e.printStackTrace();
+    }
+
+    
+
+        // Switch turns
+        turn = -turn;
+        if (turn == -1 ) {// check if it is the AI's turn
+
+            int bestMove = getBestMove();// Find the best Move
+            cF.showWithDelay("AI choosed column " + bestMove, 1000);
+            try {
+                Thread.sleep(900);
+               
+            }
+            catch(InterruptedException e) {
+                e.printStackTrace();
+            }
+            move(bestMove); // Perform the AI's move
+
+        }
+        return this;
+    }
 
         // Place the token for the current player in the chosen column and row
         int index = ((x) * cols + col);
