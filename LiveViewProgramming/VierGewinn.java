@@ -1,7 +1,3 @@
-import java.util.Arrays;
-import java.util.function.BiFunction;
-import java.util.stream.IntStream;
-
 public class VierGewinn {
     final int rows = 6;
     final int cols = 7;
@@ -10,20 +6,21 @@ public class VierGewinn {
     int[][] tokenCoordinates;
     ConnectFour cF;
 
+    // a1
     VierGewinn() {
 
         this.board = new int[rows * cols];
         this.turn = 1;
-         cF = new ConnectFour();// Creates a ConnectFour instance
+        cF = new ConnectFour();// Creates a ConnectFour instance
     
         cF.show("Game start! Red: Human, Yellow: AI. Human starts!");
+    
 
+    
     }
-
-
+    // a1
 
     // Checks if a move in the specified column is valid
-
     boolean isValidMove(int col) {
 
         if (col < 0 || col >= cols) {
@@ -35,13 +32,11 @@ public class VierGewinn {
 
     }
 
-
-    
-
     // Checks if the board is completely full
     boolean isBoardFull() {
         return Arrays.stream(board).noneMatch(cell -> cell == 0);
     }
+
 
     void reset() {
         // Reset the board (clear all fields)
@@ -56,8 +51,9 @@ public class VierGewinn {
         // Display a message indicating the game has been reset
         cF.show("The game has been reset.");
     }
-
-
+    
+    // Executes a move and alternates the turn between the players
+    // a2
     VierGewinn move(int col) {
 
         // Check if the selected column is valid
@@ -128,19 +124,10 @@ public class VierGewinn {
         }
         return this;
     }
+    // a2
 
-        // Place the token for the current player in the chosen column and row
-        int index = ((x) * cols + col);
-        board[index] = turn;
-
-        // Switch turns
-        turn = -turn;
-
-        return this;
-    }
-    
-
-    
+    // Check if the specified player has won the game
+    // a3
     boolean checkWin(int turn) {
 
         // Define directions for checking: horizontal, vertical,
@@ -150,23 +137,24 @@ public class VierGewinn {
         for (int startIdx = 0; startIdx < board.length; startIdx++) {
 
             if (board[startIdx] != turn) {
-                continue;
+                continue; // Skip fields that do not belong to the player
             }
 
+            // Check in each direction
             for (int direction : directions) {
 
                 boolean win = true;
 
-                int[] winningTokens = new int[4];
+                int[] winningTokens = new int[4]; // Indizes der Gewinnsteine
                 winningTokens[0] = startIdx;
                 // Check the next 3 fields in the current direction
                 for (int step = 1; step < 4; step++) {
                     int nextIdx = startIdx + step * direction;
                     // Check if the next field is valid
                     if (nextIdx < 0 || nextIdx >= board.length ||
-                            (direction == 1 && nextIdx / cols != startIdx / cols) ||
-                            (direction == cols - 1 && nextIdx % cols > startIdx % cols) ||
-                            (direction == cols + 1 && nextIdx % cols < startIdx % cols)) {
+                            (direction == 1 && nextIdx / cols != startIdx / cols) || // Limit horizontal row
+                            (direction == cols - 1 && nextIdx % cols > startIdx % cols) || // Limit diagonal left
+                            (direction == cols + 1 && nextIdx % cols < startIdx % cols)) { // Limit diagonal right
                         win = false;
                         break;
                     }
@@ -181,6 +169,18 @@ public class VierGewinn {
 
                 }
 
+                if (win) {
+
+                    // Saves the coordinates of the four winning tiles in a 2D array
+                    tokenCoordinates = new int[4][2];
+                    // convert the linear indices (winningTokens[i]) into column and row coordinates
+                    for (int i = 0; i < 4; i++) {
+                        tokenCoordinates[i][0] = winningTokens[i] % cols; // col
+                        tokenCoordinates[i][1] = winningTokens[i] / cols; // row
+                    }
+                    return true; // End the method, win detected
+                }
+
             }
 
         }
@@ -188,9 +188,11 @@ public class VierGewinn {
         return false; // No win detected
 
     }
-    
 
+    // a3
 
+    // Evaluates the board state for the specified player
+    // a4
     int evaluateBoard(int player) {
 
         int score = 0, opponent = -player; // Opponnent is the other player
@@ -271,8 +273,9 @@ public class VierGewinn {
         // Return the calculated score for the current board state
         return score;
     }
+    // a4
 
-
+    // Calculates the score based on the number of player and opponent stones
     final BiFunction<Integer, Integer, Integer> calculateThreatScore = (playerCount, opponentCount) -> {
         if (playerCount > 0 && opponentCount > 0)
             return 0; // Mixed threat irrelevant
@@ -291,8 +294,8 @@ public class VierGewinn {
         return 0; // No threat
     };
 
-
-
+    // Minimax algorithm with Alpha-Beta Pruning for decision making
+    // a5
     int minimax(int[] gameState, int depth, int alpha, int beta, boolean isMaximizingPlayer) {
         // Base case 1: Check if the current board state results in a win
         if (checkWin(turn)) {
@@ -347,9 +350,21 @@ public class VierGewinn {
         }
     }
 
+    // a5
+
+    // Returns the available row for a move in the specified column
+    int getAvailableRow(int col) {
+        return IntStream.rangeClosed(0, 5)
+                .map(row -> 5 - row) // Iterate from bottom to top
+                .filter(row -> board[row * 7 + col] == 0)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No available row in column " + col));
+    }
+
+    // a6
 
 
-
+    //determines the best column for the next AI move.
     int getBestMove() {
         int bestMove = -1;
 
@@ -403,16 +418,7 @@ public class VierGewinn {
 
         return bestMove; // Return the column of the best move
     }
-
-
-
-    int getAvailableRow(int col) {
-        return IntStream.rangeClosed(0, 5)
-                .map(row -> 5 - row) // Iterate from bottom to top
-                .filter(row -> board[row * 7 + col] == 0)
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("No available row in column " + col));
-    }
+    // a6
 
     public String getSymbol(int value) {
         return switch (value) {
