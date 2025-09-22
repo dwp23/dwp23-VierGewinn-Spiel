@@ -27,7 +27,7 @@ public class VierGewinn {
     boolean isValidMove(int col) {
 
         if (col < 0 || col >= cols) {
-           
+            cF.show("Column " + col + " does not exist!");
             throw new IllegalArgumentException("Column " + col + " does not exist!");
         }
 
@@ -36,16 +36,26 @@ public class VierGewinn {
     }
 
 
-
+    
 
     // Checks if the board is completely full
     boolean isBoardFull() {
         return Arrays.stream(board).noneMatch(cell -> cell == 0);
     }
 
-   
-
-
+    void reset() {
+        // Reset the board (clear all fields)
+        Arrays.fill(board, 0);
+    
+        // Reset the turn to Player 1
+        turn = 1;
+    
+        // Reset the visual board via the ConnectFour instance
+        cF.resetBoard();
+    
+        // Display a message indicating the game has been reset
+        cF.show("The game has been reset.");
+    }
 
 
     VierGewinn move(int col) {
@@ -89,7 +99,16 @@ public class VierGewinn {
         e.printStackTrace();
     }
 
-    
+    // Reset the game
+    reset();
+            return this;
+        }
+
+        if (isBoardFull()) {
+
+            cF.show("The board is full! The game ends in a draw");
+            return this;
+        }
 
         // Switch turns
         turn = -turn;
